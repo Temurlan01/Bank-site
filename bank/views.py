@@ -2,8 +2,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
-from bank.serializers import UserSearchSerializer
+from bank.models import Transaction
+from bank.serializers import UserSearchSerializer, TransactionHistorySerializer
 from users.models import CustomUser
+from django.db import models
 
 
 class UserBalanceAPIView(APIView):
@@ -59,7 +61,7 @@ class ClickButtonAPIView(APIView):
 
 
 class SendMoneyAPIView(APIView):
-    """Вью для отправки денег другому пользователю"""
+    """Вью для отправки денег другим пользователям """
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -93,7 +95,7 @@ class SendMoneyAPIView(APIView):
 
         if sender == recipient:
             return Response(status=400, data={
-                'massage': 'Нельзя отправить деньги самому себе'
+                'message': 'Нельзя отправить деньги самому себе'
             })
 
         if sender.balance < balance:
@@ -106,11 +108,34 @@ class SendMoneyAPIView(APIView):
         sender.save()
         recipient.save()
 
-
+        Transaction.objects.create(
+            sender=sender,
+            recipient=recipient,
+            amount=balance
+        )
 
         return Response(status=200, data={
-            'message': f'Вы отправили {balance} денег  пользователю {recipient.phone_number}',
+            'message': f'Вы отправили {balance} пользователю {recipient.phone_number}',
             'your_new_balance': sender.balance,
             'recipient': recipient.phone_number,
             'balance_sent': balance
         })
+
+
+
+class TransactionHistoryAPIView(APIView):
+    """Вью для историй транзакции"""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        transactions = Transaction.objects.filter(
+            models.Q(sender=user) | models.Q(recipient=user)
+        ).order_by('-timestamp')
+
+        serializer = TransactionHistorySerializer(
+            transactions,
+            many=True,
+            context={'request': request}
+        )
+        return Response(serializer.data)
