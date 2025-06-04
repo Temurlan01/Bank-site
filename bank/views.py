@@ -39,6 +39,12 @@ class UserSearchAPIView(APIView):
             return Response(status=404, data={
                 'message': 'Пользователь не найден'
             })
+
+        if user == request.user:
+            return Response(status=400, data={
+                'error': 'Нельзя искать самого себя'
+            })
+
         serializer = UserSearchSerializer(user)
         return Response(serializer.data)
 
