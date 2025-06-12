@@ -1,11 +1,12 @@
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.authtoken.models import Token
 from bank.models import Transaction
-from bank.serializers import UserSearchSerializer, TransactionHistorySerializer
+from bank.serializers import UserSearchSerializer, \
+    TransactionHistorySerializer, SendMoneySerializer, \
+    UserSearchRequestSerializer
 from users.models import CustomUser
-from django.db import models
+from django.db import models, transaction
 
 
 class UserBalanceAPIView(APIView):
@@ -14,39 +15,23 @@ class UserBalanceAPIView(APIView):
 
     def get(self, request):
         user = request.user
-        token = Token.objects.get(user=user)
         return Response({
             "phone_number": user.phone_number,
             "balance": user.balance,
-            "token": token.key
         })
 
 
 
 class UserSearchAPIView(APIView):
-    """Вью для поиска пользователей"""
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        phone_number = request.query_params.get('phone_number')
-        if not phone_number:
-            return Response(status=400, data={
-                'message': 'Номер телефона обязателен'
-            })
-        try:
-            user = CustomUser.objects.get(phone_number=phone_number)
-        except CustomUser.DoesNotExist:
-            return Response(status=404, data={
-                'message': 'Пользователь не найден'
-            })
+        serializer = UserSearchRequestSerializer(data=request.query_params, context={'request': request})
+        serializer.is_valid(raise_exception=True)
 
-        if user == request.user:
-            return Response(status=400, data={
-                'error': 'Нельзя искать самого себя'
-            })
-
-        serializer = UserSearchSerializer(user)
-        return Response(serializer.data)
+        user = serializer.validated_data['user']
+        response_serializer = UserSearchSerializer(user)
+        return Response(response_serializer.data)
 
 
 
@@ -67,65 +52,36 @@ class ClickButtonAPIView(APIView):
 
 
 class SendMoneyAPIView(APIView):
-    """Вью для отправки денег другим пользователям """
+    """Вью для отправки денег другим пользователям"""
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        phone_number = request.data.get('phone_number')
-        balance = request.data.get('balance')
-
-        if not phone_number or not balance:
-            return Response(status=400, data={
-                'message': 'Номер и сумма обязательны'
-            })
-
-        try:
-            balance = int(balance)
-            if balance <= 0:
-                return Response(status=400, data={
-                    'message': 'Сумма должна быть положительной'
-                })
-        except ValueError:
-            return Response(status=400, data={
-                'message': 'Сумма должна быть числом'
-            })
-
-        try:
-            recipient = CustomUser.objects.get(phone_number=phone_number)
-        except CustomUser.DoesNotExist:
-            return Response(status=404, data={
-                'message': 'Получатель не найден'
-            })
+        serializer = SendMoneySerializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
 
         sender = request.user
+        recipient = serializer.validated_data['recipient']
+        amount = serializer.validated_data['amount']
 
-        if sender == recipient:
-            return Response(status=400, data={
-                'message': 'Нельзя отправить деньги самому себе'
-            })
+        with transaction.atomic():
+            sender.balance -= amount
+            recipient.balance += amount
+            sender.save()
+            recipient.save()
 
-        if sender.balance < balance:
-            return Response(status=400, data={
-                'message': 'Недостаточно средств'
-            })
-
-        sender.balance -= balance
-        recipient.balance += balance
-        sender.save()
-        recipient.save()
-
-        Transaction.objects.create(
-            sender=sender,
-            recipient=recipient,
-            amount=balance
-        )
+            Transaction.objects.create(
+                sender=sender,
+                recipient=recipient,
+                amount=amount
+            )
 
         return Response(status=200, data={
-            'message': f'Вы отправили {balance} пользователю {recipient.phone_number}',
+            'message': f'Вы отправили {amount} пользователю {recipient.phone_number}',
             'your_new_balance': sender.balance,
             'recipient': recipient.phone_number,
-            'balance_sent': balance
+            'amount_sent': amount
         })
+
 
 
 
