@@ -25,7 +25,6 @@ class UserSearchRequestSerializer(serializers.Serializer):
         if user == request_user:
             raise serializers.ValidationError({'phone_number': 'Нельзя искать самого себя'})
 
-        # Сохраняем найденного пользователя для использования позже
         data['user'] = user
         return data
 

@@ -5,12 +5,11 @@ from bank.models import Transaction
 from bank.serializers import UserSearchSerializer, \
     TransactionHistorySerializer, SendMoneySerializer, \
     UserSearchRequestSerializer
-from users.models import CustomUser
 from django.db import models, transaction
 
 
 class UserBalanceAPIView(APIView):
-    """Вью, для отображение информации о балансе"""
+    """Вью для, отображение информации о балансе"""
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -23,6 +22,7 @@ class UserBalanceAPIView(APIView):
 
 
 class UserSearchAPIView(APIView):
+    """Вью для поиска других пользователей"""
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -81,7 +81,6 @@ class SendMoneyAPIView(APIView):
             'recipient': recipient.phone_number,
             'amount_sent': amount
         })
-
 
 
 
