@@ -65,6 +65,14 @@ class TransactionHistorySerializer(serializers.ModelSerializer):
 
     def get_direction(self, obj):
         request_user = self.context['request'].user
+
+        # alternative way
+        # mapping = {
+        #     obj.sender_id: '-',
+        #     obj.recipient_id: '+',
+        # }
+        # return mapping[request_user.id]
+
         if obj.sender == request_user:
             return '-'
         elif obj.recipient == request_user:
@@ -76,4 +84,4 @@ class TransactionHistorySerializer(serializers.ModelSerializer):
         return (
             obj.recipient.phone_number if obj.sender == request_user
             else obj.sender.phone_number
-        )
+        )  # тернарный оператор

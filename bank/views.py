@@ -26,7 +26,10 @@ class UserSearchAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        serializer = UserSearchRequestSerializer(data=request.query_params, context={'request': request})
+        serializer = UserSearchRequestSerializer(
+            data=request.query_params,
+            context={'request': request},
+        )
         serializer.is_valid(raise_exception=True)
 
         user = serializer.validated_data['user']
@@ -43,11 +46,13 @@ class ClickButtonAPIView(APIView):
         user = request.user
         user.balance += 1
         user.save()
-        return Response(status=200, data={
-            'phone_number': user.phone_number,
-            'message': 'Баланс увеличен на 1',
-            'new_balance': user.balance,
-        })
+        return Response(
+            status=200,
+            data={
+                'phone_number': user.phone_number,
+                'new_balance': user.balance,
+            },
+        )
 
 
 
@@ -56,7 +61,8 @@ class SendMoneyAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        serializer = SendMoneySerializer(data=request.data, context={'request': request})
+        serializer = SendMoneySerializer(data=request.data,
+                                         context={'request': request})
         serializer.is_valid(raise_exception=True)
 
         sender = request.user
@@ -76,7 +82,6 @@ class SendMoneyAPIView(APIView):
             )
 
         return Response(status=200, data={
-            'message': f'Вы отправили {amount} пользователю {recipient.phone_number}',
             'your_new_balance': sender.balance,
             'recipient': recipient.phone_number,
             'amount_sent': amount
