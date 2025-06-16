@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.shortcuts import redirect
 from django.urls import path
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
@@ -24,6 +25,7 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0),
          name='schema-swagger-ui'),
+    path('', lambda request: redirect('/api/v1/users/register/')),
     path('admin/', admin.site.urls),
     path('api/v1/users/register/', UserRegisterAPIView.as_view()),              # эдпоинт для регистрации
     path('api/v1/users/login/', UserLoginAPIView.as_view()),       # эдпоинт для логина
