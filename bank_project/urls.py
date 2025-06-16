@@ -14,7 +14,7 @@ schema_view = get_schema_view(
       default_version='v1',
       description="API предоставляет возможность зарегистрироваться, логиниться, поиск других пользователей, кнопка для увеличение баланса, отправка денег другим пользователям, просмотр истории ",
       terms_of_service="https://www.google.com/policies/terms/",
-      contact=openapi.Contact(email="contact@snippets.local"),
+      contact=openapi.Contact(email="temur07lan@gmail.com"),
       license=openapi.License(name="BSD License"),
    ),
     public=True,
