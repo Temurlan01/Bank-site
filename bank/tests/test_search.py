@@ -4,7 +4,6 @@ from rest_framework.test import APITestCase
 from users.models import CustomUser
 
 
-
 class UserSearchTests(APITestCase):
     def setUp(self):
         self.user = CustomUser.objects.create_user(

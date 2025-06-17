@@ -33,5 +33,5 @@ urlpatterns = [
     path('api/v1/user/search/', UserSearchAPIView.as_view()),      # эдпоинт для поиска
     path('api/v1/user/click-button/', ClickButtonAPIView.as_view()),     # эдпоинт для кнопки увеличение баланса
     path('api/v1/user/send-money/', SendMoneyAPIView.as_view()),         # эдпоинт для оправки денег другому пользователю
-    path('api/v1/user/history/', TransactionHistoryAPIView.as_view()),   # эдпоинт для просмотра истории транзакции
+    path('api/v1/user/transactions/', TransactionHistoryAPIView.as_view()),   # эдпоинт для просмотра истории транзакции
 ]

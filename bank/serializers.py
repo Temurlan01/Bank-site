@@ -80,8 +80,11 @@ class TransactionHistorySerializer(serializers.ModelSerializer):
         return ''
 
     def get_other_user(self, obj):
-        request_user = self.context['request'].user
-        return (
-            obj.recipient.phone_number if obj.sender == request_user
-            else obj.sender.phone_number
-        )  # тернарный оператор
+        user = self.context['request'].user
+
+        if obj.sender == user:
+            other_user = obj.recipient
+        else:
+            other_user = obj.sender
+
+        return other_user.phone_number
