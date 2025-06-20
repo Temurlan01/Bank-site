@@ -2,6 +2,10 @@ from rest_framework import serializers
 from bank.models import Transaction
 from users.models import CustomUser
 
+class UserBalanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['phone_number', 'balance']
 
 class UserSearchSerializer(serializers.ModelSerializer):
     class Meta:
@@ -12,7 +16,7 @@ class UserSearchSerializer(serializers.ModelSerializer):
 
 class UserSearchRequestSerializer(serializers.Serializer):
     phone_number = serializers.CharField()
-
+ 
     def validate(self, data):
         request_user = self.context['request'].user
         phone_number = data['phone_number']

@@ -1,29 +1,28 @@
+from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from bank.models import Transaction
 from bank.serializers import UserSearchSerializer, \
     TransactionHistorySerializer, SendMoneySerializer, \
-    UserSearchRequestSerializer
+    UserSearchRequestSerializer, UserBalanceSerializer
 from django.db import models, transaction
 
 
 class UserBalanceAPIView(APIView):
-    """Вью для, отображение информации о балансе"""
     permission_classes = [IsAuthenticated]
+    serializer_class = UserBalanceSerializer
 
     def get(self, request):
-        user = request.user
-        return Response({
-            "phone_number": user.phone_number,
-            "balance": user.balance,
-        })
+        serializer = UserBalanceSerializer(request.user)
+        return Response(serializer.data)
 
 
 
-class UserSearchAPIView(APIView):
+class UserSearchAPIView(GenericAPIView):
     """Вью для поиска других пользователей"""
     permission_classes = [IsAuthenticated]
+    serializer_class = UserSearchSerializer
 
     def get(self, request):
         serializer = UserSearchRequestSerializer(
@@ -56,9 +55,10 @@ class ClickButtonAPIView(APIView):
 
 
 
-class SendMoneyAPIView(APIView):
+class SendMoneyAPIView(GenericAPIView):
     """Вью для отправки денег другим пользователям"""
     permission_classes = [IsAuthenticated]
+    serializer_class = SendMoneySerializer
 
     def post(self, request):
         serializer = SendMoneySerializer(data=request.data,
@@ -89,9 +89,10 @@ class SendMoneyAPIView(APIView):
 
 
 
-class TransactionHistoryAPIView(APIView):
+class TransactionHistoryAPIView(GenericAPIView):
     """Вью для историй транзакции"""
     permission_classes = [IsAuthenticated]
+    serializer_class =TransactionHistorySerializer
 
     def get(self, request):
         user = request.user

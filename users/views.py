@@ -1,12 +1,14 @@
-from rest_framework.views import APIView
+from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from .models import CustomUser
 from .serializers import RegisterSerializer, LoginSerializer
 
 
-class UserRegisterAPIView(APIView):
+class UserRegisterAPIView(GenericAPIView):
     """Вью для регистрации"""
+    serializer_class = RegisterSerializer
+
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -16,8 +18,10 @@ class UserRegisterAPIView(APIView):
 
 
 
-class UserLoginAPIView(APIView):
+class UserLoginAPIView(GenericAPIView):
     """Вью для логина"""
+    serializer_class = LoginSerializer
+
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)

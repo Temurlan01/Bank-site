@@ -13,7 +13,7 @@ schema_view = get_schema_view(
    openapi.Info(
       title="Бэкенд документация API для Банк сайта",
       default_version='v1',
-      description="API предоставляет возможность зарегистрироваться, логиниться, поиск других пользователей, кнопка для увеличение баланса, отправка денег другим пользователям, просмотр истории ",
+      description="API предоставляет возможность зарегистрироваться, логиниться, поиск других пользователей, кнопка для увеличение баланса, отправка денег другим пользователям, просмотр истории",
       terms_of_service="https://www.google.com/policies/terms/",
       contact=openapi.Contact(email="temur07lan@gmail.com"),
       license=openapi.License(name="BSD License"),
@@ -27,11 +27,11 @@ urlpatterns = [
          name='schema-swagger-ui'),
     path('', lambda request: redirect('/api/v1/users/register/')),
     path('admin/', admin.site.urls),
-    path('api/v1/users/register/', UserRegisterAPIView.as_view()),             # эдпоинт для регистрации
-    path('api/v1/users/login/', UserLoginAPIView.as_view()),                   # эдпоинт для логина
-    path('api/v1/user/balance-info/', UserBalanceAPIView.as_view()),           # эдпоинт для баланса
-    path('api/v1/user/search-user/', UserSearchAPIView.as_view()),             # эдпоинт для поиска
-    path('api/v1/user/increase-balance/', ClickButtonAPIView.as_view()),       # эдпоинт для кнопки увеличение баланса
-    path('api/v1/user/send-money/', SendMoneyAPIView.as_view()),               # эдпоинт для оправки денег другому пользователю
-    path('api/v1/user/transactions/', TransactionHistoryAPIView.as_view()),    # эдпоинт для просмотра истории транзакции
+    path('api/v1/users/register/', UserRegisterAPIView.as_view()),              # эдпоинт для регистрации
+    path('api/v1/users/login/', UserLoginAPIView.as_view()),                    # эдпоинт для логина
+    path('api/v1/user/balance-info/', UserBalanceAPIView.as_view()),            # эдпоинт для баланса
+    path('api/v1/user/search-user/', UserSearchAPIView.as_view()),              # эдпоинт для поиска
+    path('api/v1/user/increase-balance/', ClickButtonAPIView.as_view()),        # эдпоинт для кнопки увеличение баланса
+    path('api/v1/user/send-money/', SendMoneyAPIView.as_view()),                # эдпоинт для оправки денег другому пользователю
+    path('api/v1/user/transactions/', TransactionHistoryAPIView.as_view()),     # эдпоинт для просмотра истории транзакции
 ]

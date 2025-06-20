@@ -19,7 +19,11 @@ class SendMoneyTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.sender.refresh_from_db()
         self.recipient.refresh_from_db()
-        self.assertEqual(response.json()['your_new_balance'], self.sender.balance)
+        self.assertEqual(response.json()['your_new_balance'], 50)
         self.assertEqual(response.json()['recipient'],self.recipient.phone_number)
+        self.assertEqual(self.sender.balance, 50)
         self.assertEqual(response.json()['amount_sent'],
                          self.amount)
+
+#  нужны тесты когда: клиент не авторизован, когда клиент оптравляет больше чем у него есть: когда отправляет юзеру которого нет, когда отправляет
+# TDD посмотри что это такое и для чего используется
