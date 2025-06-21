@@ -2,35 +2,41 @@ from rest_framework import serializers
 from bank.models import Transaction
 from users.models import CustomUser
 
+
 class UserBalanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['phone_number', 'balance']
-
-class UserSearchSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = ['id', 'phone_number',]
+        fields = [
+            'phone_number',
+            'balance'
+        ]
 
 
 
 class UserSearchRequestSerializer(serializers.Serializer):
     phone_number = serializers.CharField()
- 
+
     def validate(self, data):
         request_user = self.context['request'].user
         phone_number = data['phone_number']
 
-        try:
-            user = CustomUser.objects.get(phone_number=phone_number)
-        except CustomUser.DoesNotExist:
-            raise serializers.ValidationError({'phone_number': 'Пользователь не найден'})
+        users = CustomUser.objects.filter(
+            phone_number__icontains=phone_number
+        ).exclude(id=request_user.id)
 
-        if user == request_user:
-            raise serializers.ValidationError({'phone_number': 'Нельзя искать самого себя'})
+        if not users.exists():
+            raise serializers.ValidationError({
+                'phone_number': 'Пользователи не найдены или вы ищете самого себя'
+            })
 
-        data['user'] = user
+        data['users'] = users
         return data
+
+
+
+class BalanceUpdateSerializer(serializers.Serializer):
+    phone_number = serializers.CharField(read_only=True)
+    new_balance = serializers.IntegerField(read_only=True)
 
 
 
@@ -65,7 +71,12 @@ class TransactionHistorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Transaction
-        fields = ['direction', 'other_user', 'amount', 'timestamp']
+        fields = [
+            'direction',
+            'other_user',
+            'amount',
+            'timestamp'
+        ]
 
     def get_direction(self, obj):
         request_user = self.context['request'].user

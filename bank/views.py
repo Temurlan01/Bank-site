@@ -1,15 +1,14 @@
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from bank.models import Transaction
-from bank.serializers import UserSearchSerializer, \
-    TransactionHistorySerializer, SendMoneySerializer, \
-    UserSearchRequestSerializer, UserBalanceSerializer
+from bank.serializers import (TransactionHistorySerializer,
+                              SendMoneySerializer, UserSearchRequestSerializer,
+                              UserBalanceSerializer, BalanceUpdateSerializer)
 from django.db import models, transaction
 
 
-class UserBalanceAPIView(APIView):
+class UserBalanceAPIView(GenericAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = UserBalanceSerializer
 
@@ -20,38 +19,35 @@ class UserBalanceAPIView(APIView):
 
 
 class UserSearchAPIView(GenericAPIView):
-    """Вью для поиска других пользователей"""
-    permission_classes = [IsAuthenticated]
-    serializer_class = UserSearchSerializer
-
+    """Вью для поиска пользователей"""
+    serializer_class = UserSearchRequestSerializer
     def get(self, request):
-        serializer = UserSearchRequestSerializer(
-            data=request.query_params,
-            context={'request': request},
-        )
+        serializer = UserSearchRequestSerializer(data=request.query_params, context={'request': request})
         serializer.is_valid(raise_exception=True)
+        users = serializer.validated_data['users']
 
-        user = serializer.validated_data['user']
-        response_serializer = UserSearchSerializer(user)
-        return Response(response_serializer.data)
+        return Response([
+            {'id': u.id, 'phone_number': u.phone_number}
+            for u in users
+        ])
 
 
 
-class ClickButtonAPIView(APIView):
-    """Вью для кнопки увеличение баланса"""
+class ClickButtonAPIView(GenericAPIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = BalanceUpdateSerializer
 
     def post(self, request):
         user = request.user
         user.balance += 1
         user.save()
-        return Response(
-            status=200,
-            data={
-                'phone_number': user.phone_number,
-                'new_balance': user.balance,
-            },
-        )
+
+        serializer = BalanceUpdateSerializer({
+            'phone_number': user.phone_number,
+            'new_balance': user.balance,
+        })
+
+        return Response(serializer.data, status=200)
 
 
 

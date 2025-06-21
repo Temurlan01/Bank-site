@@ -1,4 +1,7 @@
+from django.contrib.auth import authenticate
 from rest_framework import serializers
+from rest_framework.authtoken.models import Token
+
 from .models import CustomUser
 
 
@@ -23,9 +26,20 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data.pop('password2')
+
         return CustomUser.objects.create_user(**validated_data)
 
 
-class LoginSerializer(serializers.Serializer):
-    phone_number = serializers.CharField(min_length=6, max_length=20)
-    password = serializers.CharField(min_length=8)
+
+class UserLoginSerializer(serializers.Serializer):
+    phone_number = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+    token = serializers.CharField(read_only=True)
+
+    def validate(self, data):
+        user = authenticate(phone_number=data['phone_number'], password=data['password'])
+        if not user:
+            raise serializers.ValidationError("Неверный номер или пароль")
+        token, _ = Token.objects.get_or_create(user=user)
+        data['token'] = token.key
+        return data
