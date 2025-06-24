@@ -59,7 +59,7 @@ class SendMoneyTests(APITestCase):
         self.assertIn('Нельзя отправить деньги самому себе', response.data['phone_number'][0])
 
     def test_send_money_unauthenticated(self):
-        self.client.credentials()  # сбрасываем токен
+        self.client.credentials()
         data = {
             "phone_number": self.recipient.phone_number,
             "amount": 10
@@ -68,4 +68,3 @@ class SendMoneyTests(APITestCase):
         self.assertEqual(response.status_code, 401)
         self.assertIn('detail', response.data)
 
-# TDD посмотри что это такое и для чего используется

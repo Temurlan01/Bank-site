@@ -27,3 +27,13 @@ class TransactionHistoryTests(APITestCase):
         self.assertEqual(transaction['amount'], 50)
         self.assertEqual(transaction['direction'], '-')
         self.assertEqual(transaction['other_user'], self.user2.phone_number)
+
+    def test_send_money_unauthenticated(self):
+        self.client.credentials()
+        data = {
+            "phone_number": self.user1.phone_number,
+            "amount": 10
+        }
+        response = self.client.post("/api/v1/user/send-money/", data)
+        self.assertEqual(response.status_code, 401)
+        self.assertIn('detail', response.data)

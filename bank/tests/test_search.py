@@ -1,4 +1,3 @@
-from django.http import response
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 from users.models import CustomUser
@@ -7,10 +6,10 @@ from users.models import CustomUser
 class UserSearchTests(APITestCase):
     def setUp(self):
         self.user = CustomUser.objects.create_user(
-            phone_number=111111, password="pass"
+            phone_number=111111, password="password"
         )
         self.other_user = CustomUser.objects.create_user(
-            phone_number=222222, password="pass"
+            phone_number=222222, password="password"
         )
         self.token = Token.objects.create(user=self.user)
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
@@ -23,5 +22,5 @@ class UserSearchTests(APITestCase):
 
     def test_user_search_self(self):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token.key)
-        response = self.client.get("/api/v1/user/search/?phone_number=1111111111")
+        response = self.client.get('/api/v1/user/search/?phone_number=1111111111')
         self.assertEqual(response.status_code, 400)
