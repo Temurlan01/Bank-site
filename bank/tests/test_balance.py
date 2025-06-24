@@ -16,3 +16,7 @@ class BalanceTests(APITestCase):
         self.assertEqual(response.data['balance'], 150)
         self.assertEqual(response.json()['phone_number'],
                          self.user.phone_number)
+
+    def test_balance_unauthorized(self):
+        response = self.client.get("/api/v1/user/balance/")
+        self.assertEqual(response.status_code, 401)

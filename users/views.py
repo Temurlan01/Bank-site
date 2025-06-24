@@ -18,9 +18,8 @@ class UserRegisterAPIView(GenericAPIView):
 
 
 class UserLoginAPIView(GenericAPIView):
-    """Вью для логина"""
     serializer_class = UserLoginSerializer
     def post(self, request):
         serializer = UserLoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        return Response(serializer.data, status=200)
+        return Response(serializer.validated_data, status=200)

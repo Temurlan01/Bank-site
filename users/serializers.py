@@ -37,9 +37,16 @@ class UserLoginSerializer(serializers.Serializer):
     token = serializers.CharField(read_only=True)
 
     def validate(self, data):
-        user = authenticate(phone_number=data['phone_number'], password=data['password'])
+        phone_number = data.get('phone_number')
+        password = data.get('password')
+
+        user = authenticate(phone_number=phone_number, password=password)
         if not user:
             raise serializers.ValidationError("Неверный номер или пароль")
+
         token, _ = Token.objects.get_or_create(user=user)
-        data['token'] = token.key
-        return data
+
+        return {
+            'phone_number': user.phone_number,
+            'token': token.key
+        }

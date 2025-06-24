@@ -20,3 +20,8 @@ class UserSearchTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['id'], self.other_user.id)
         self.assertEqual(response.json()['phone_number'], self.other_user.phone_number)
+
+    def test_user_search_self(self):
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token.key)
+        response = self.client.get("/api/v1/user/search/?phone_number=1111111111")
+        self.assertEqual(response.status_code, 400)

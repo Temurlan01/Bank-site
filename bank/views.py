@@ -9,6 +9,7 @@ from django.db import models, transaction
 
 
 class UserBalanceAPIView(GenericAPIView):
+    """Вью для просмотра информации текущего пользователя"""
     permission_classes = [IsAuthenticated]
     serializer_class = UserBalanceSerializer
 
@@ -34,6 +35,7 @@ class UserSearchAPIView(GenericAPIView):
 
 
 class ClickButtonAPIView(GenericAPIView):
+    """Вью, Кнопка для увеличения баланса"""
     permission_classes = [IsAuthenticated]
     serializer_class = BalanceUpdateSerializer
 
