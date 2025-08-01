@@ -15,12 +15,17 @@ class UserSearchTests(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
 
     def test_search_other_user(self):
-        response = self.client.get('/api/v1/user/search/?phone_number=222222')
+        response = self.client.get('/api/v1/user/search-user/?phone_number=222222')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()['id'], self.other_user.id)
-        self.assertEqual(response.json()['phone_number'], self.other_user.phone_number)
+
+        data = response.json()
+        self.assertIsInstance(data, list)
+        self.assertGreater(len(data), 0)
+
+        user_data = data[0]
+        self.assertEqual(user_data['id'], self.other_user.id)
+        self.assertEqual(user_data['phone_number'], str(self.other_user.phone_number))
 
     def test_user_search_self(self):
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token.key)
-        response = self.client.get('/api/v1/user/search/?phone_number=1111111111')
+        response = self.client.get(f'/api/v1/user/search-user/?phone_number={self.user.phone_number}')
         self.assertEqual(response.status_code, 400)

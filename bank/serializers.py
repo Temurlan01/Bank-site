@@ -88,11 +88,7 @@ class TransactionHistorySerializer(serializers.ModelSerializer):
         # }
         # return mapping[request_user.id]
 
-        if obj.sender == request_user:
-            return '-'
-        elif obj.recipient == request_user:
-            return '+'
-        return ''
+
 
     def get_other_user(self, obj):
         user = self.context['request'].user
