@@ -81,12 +81,11 @@ class TransactionHistorySerializer(serializers.ModelSerializer):
     def get_direction(self, obj):
         request_user = self.context['request'].user
 
-        # alternative way
-        # mapping = {
-        #     obj.sender_id: '-',
-        #     obj.recipient_id: '+',
-        # }
-        # return mapping[request_user.id]
+        mapping = {
+            obj.sender_id: '-',
+            obj.recipient_id: '+',
+        }
+        return mapping[request_user.id]
 
 
 
